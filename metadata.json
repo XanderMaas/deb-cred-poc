@@ -1,0 +1,5 @@
+{
+  "name": "Financial Dashboard",
+  "description": "A financial dashboard showing NWC, AR, AP, and aging analysis.",
+  "requestFramePermissions": []
+}
