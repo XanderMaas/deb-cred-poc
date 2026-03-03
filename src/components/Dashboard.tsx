@@ -480,10 +480,11 @@ export default function Dashboard() {
               </div>
             </Card>
 
-            {/* Verwachte handelsuitstroom */}
+            {/* Verwachte debiteuren inkomsten */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Verwachte handelsuitstroom</CardTitle>
+                <CardTitle className="text-sm">Verwachte debiteuren inkomsten</CardTitle>
+                <p className="text-xs text-slate-500 mt-1">Komende drie maanden</p>
               </CardHeader>
               <CardContent>
                 <div className="h-[260px] w-full">
@@ -683,10 +684,11 @@ export default function Dashboard() {
               </div>
             </Card>
 
-            {/* Verwachte handelsinstroom */}
+            {/* Verwachte crediteuren uitgaven */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Verwachte handelsinstroom</CardTitle>
+                <CardTitle className="text-sm">Verwachte crediteuren uitgaven</CardTitle>
+                <p className="text-xs text-slate-500 mt-1">Komende drie maanden</p>
               </CardHeader>
               <CardContent>
                 <div className="h-[260px] w-full">
