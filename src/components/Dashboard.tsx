@@ -15,7 +15,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { ArrowDownRight, ArrowUpRight, Euro, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Euro, Clock, AlertTriangle, TrendingUp } from 'lucide-react';
 
 const formatEuro = (value: number) => {
   return new Intl.NumberFormat('nl-NL', {
@@ -27,18 +27,19 @@ const formatEuro = (value: number) => {
 
 // Mock Data
 const rolling12Months = [
-  { month: 'Jan', DIO: 45, DSO: 35, DPO: 40, CashGap: 40 },
-  { month: 'Feb', DIO: 44, DSO: 36, DPO: 42, CashGap: 38 },
-  { month: 'Mar', DIO: 46, DSO: 34, DPO: 41, CashGap: 39 },
-  { month: 'Apr', DIO: 43, DSO: 37, DPO: 45, CashGap: 35 },
-  { month: 'Mei', DIO: 42, DSO: 38, DPO: 44, CashGap: 36 },
-  { month: 'Jun', DIO: 45, DSO: 35, DPO: 43, CashGap: 37 },
-  { month: 'Jul', DIO: 47, DSO: 33, DPO: 40, CashGap: 40 },
-  { month: 'Aug', DIO: 48, DSO: 34, DPO: 39, CashGap: 43 },
-  { month: 'Sep', DIO: 46, DSO: 36, DPO: 41, CashGap: 41 },
-  { month: 'Okt', DIO: 44, DSO: 38, DPO: 42, CashGap: 40 },
-  { month: 'Nov', DIO: 43, DSO: 39, DPO: 45, CashGap: 37 },
-  { month: 'Dec', DIO: 41, DSO: 40, DPO: 46, CashGap: 35 },
+  // Meer realistische ontwikkeling van DIO / DSO / DPO en CashGap (CCC = DIO + DSO - DPO)
+  { month: 'Jan', DIO: 52, DSO: 42, DPO: 36, CashGap: 58 },
+  { month: 'Feb', DIO: 51, DSO: 41, DPO: 37, CashGap: 55 },
+  { month: 'Mar', DIO: 50, DSO: 40, DPO: 37, CashGap: 53 },
+  { month: 'Apr', DIO: 49, DSO: 39, DPO: 38, CashGap: 50 },
+  { month: 'Mei', DIO: 48, DSO: 38, DPO: 38, CashGap: 48 },
+  { month: 'Jun', DIO: 47, DSO: 37, DPO: 39, CashGap: 45 },
+  { month: 'Jul', DIO: 46, DSO: 36, DPO: 40, CashGap: 42 },
+  { month: 'Aug', DIO: 45, DSO: 35, DPO: 40, CashGap: 40 },
+  { month: 'Sep', DIO: 44, DSO: 35, DPO: 41, CashGap: 38 },
+  { month: 'Okt', DIO: 44, DSO: 34, DPO: 41, CashGap: 37 },
+  { month: 'Nov', DIO: 43, DSO: 34, DPO: 42, CashGap: 35 },
+  { month: 'Dec', DIO: 42, DSO: 33, DPO: 42, CashGap: 33 },
 ];
 
 const COLORS = ['#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f97316', '#eab308'];
@@ -101,6 +102,36 @@ const overdueCreditors = [
   { name: 'Cloud Services', balance: 5000, invoices: 1, b1: 0, b2: 0, b3: 5000, b4: 0, hist: 4, avg: 55 },
 ];
 
+const expectedARInflowWeeks = [
+  { week: 'Week 1', month: 'Jan', value: 140000 },
+  { week: 'Week 2', month: 'Jan', value: 155000 },
+  { week: 'Week 3', month: 'Jan', value: 160000 },
+  { week: 'Week 4', month: 'Jan', value: 150000 },
+  { week: 'Week 5', month: 'Feb', value: 145000 },
+  { week: 'Week 6', month: 'Feb', value: 158000 },
+  { week: 'Week 7', month: 'Feb', value: 162000 },
+  { week: 'Week 8', month: 'Feb', value: 170000 },
+  { week: 'Week 9', month: 'Mrt', value: 168000 },
+  { week: 'Week 10', month: 'Mrt', value: 172000 },
+  { week: 'Week 11', month: 'Mrt', value: 165000 },
+  { week: 'Week 12', month: 'Mrt', value: 160000 },
+];
+
+const expectedAPOutflowWeeks = [
+  { week: 'Week 1', month: 'Jan', value: 90000 },
+  { week: 'Week 2', month: 'Jan', value: 95000 },
+  { week: 'Week 3', month: 'Jan', value: 88000 },
+  { week: 'Week 4', month: 'Jan', value: 92000 },
+  { week: 'Week 5', month: 'Feb', value: 93000 },
+  { week: 'Week 6', month: 'Feb', value: 97000 },
+  { week: 'Week 7', month: 'Feb', value: 99000 },
+  { week: 'Week 8', month: 'Feb', value: 100000 },
+  { week: 'Week 9', month: 'Mrt', value: 98000 },
+  { week: 'Week 10', month: 'Mrt', value: 102000 },
+  { week: 'Week 11', month: 'Mrt', value: 95000 },
+  { week: 'Week 12', month: 'Mrt', value: 94000 },
+];
+
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
@@ -114,70 +145,96 @@ export default function Dashboard() {
 
         {/* Top Layer */}
         <div className="space-y-6">
-          {/* Row 1: 3 KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Row 1: 4 KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Netto Werkkapitaal</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-500">Netto werkkapitaal</CardTitle>
                 <Euro className="h-4 w-4 text-slate-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatEuro(1250000)}</div>
                 <p className="text-xs text-emerald-600 flex items-center mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
-                  +4.5% t.o.v. vorige maand
+                  +4,5% t.o.v. vorige maand
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Totaal Openstaande Debiteuren</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-500">Voorraad</CardTitle>
+                <Euro className="h-4 w-4 text-slate-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatEuro(600000)}</div>
+                <p className="text-xs text-emerald-600 flex items-center mt-1">
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                  +3,2% t.o.v. vorige maand
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Debiteuren</CardTitle>
                 <ArrowUpRight className="h-4 w-4 text-slate-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatEuro(850000)}</div>
                 <p className="text-xs text-rose-600 flex items-center mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
-                  +2.1% t.o.v. vorige maand
+                  +2,1% t.o.v. vorige maand
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Totaal Openstaande Crediteuren</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-500">Crediteuren</CardTitle>
                 <ArrowDownRight className="h-4 w-4 text-slate-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatEuro(420000)}</div>
                 <p className="text-xs text-emerald-600 flex items-center mt-1">
                   <ArrowDownRight className="h-3 w-3 mr-1" />
-                  -1.2% t.o.v. vorige maand
+                  -1,2% t.o.v. vorige maand
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Row 2: Line Chart & 2 KPIs */}
+          {/* Row 2: Line Chart & 3 KPIs */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 flex flex-col h-full">
               <CardHeader>
-                <CardTitle>Rolling Laaste 12 Maanden (Dagen)</CardTitle>
+                <CardTitle>Cash conversion cycle</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="h-[300px] w-full">
+              <CardContent className="flex-1">
+                <div className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={rolling12Months} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                      <Tooltip 
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                      />
+                      <Tooltip
                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value: number, name: string) => [`${value} dagen`, name]}
                       />
                       <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                      <Line type="monotone" dataKey="DIO" stroke="#0ea5e9" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="DSO" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="DPO" stroke="#f43f5e" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="CashGap" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="DIO" stroke="#0ea5e9" strokeWidth={2} dot={false} activeDot={false} />
+                      <Line type="monotone" dataKey="DSO" stroke="#8b5cf6" strokeWidth={2} dot={false} activeDot={false} />
+                      <Line type="monotone" dataKey="DPO" stroke="#f43f5e" strokeWidth={2} dot={false} activeDot={false} />
+                      <Line
+                        type="monotone"
+                        dataKey="CashGap"
+                        name="Cash gap"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        dot={false}
+                        activeDot={false}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -186,12 +243,31 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-500">Huidige Vervallen Vorderingen</CardTitle>
+                  <CardTitle className="text-sm font-medium text-slate-500">Cash conversion cycle (dagen)</CardTitle>
+                  <Clock className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-slate-900">
+                    58 <span className="text-lg font-normal text-slate-500">dagen</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-2">
+                    <ArrowDownRight className="h-3 w-3 mr-1" />
+                    -2,0 dagen t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">Huidig vervallen vorderingen</CardTitle>
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{formatEuro(150000)}</div>
-                  <p className="text-sm text-slate-500 mt-2">17.6% van totaal uitstaand</p>
+                <div className="text-3xl font-bold text-slate-900">{formatEuro(150000)}</div>
+                <p className="text-sm text-slate-500 mt-2">17,6% van totaal uitstaand</p>
+                <p className="text-xs text-rose-600 flex items-center mt-1">
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                  +1,3% t.o.v. vorige maand
+                </p>
                 </CardContent>
               </Card>
               <Card>
@@ -214,6 +290,40 @@ export default function Dashboard() {
           {/* Column 1: Debiteuren */}
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2">Debiteuren</h2>
+            
+            {/* Debiteuren KPI's */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">DSO (Days Sales Outstanding)</CardTitle>
+                  <Clock className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    38 <span className="text-sm font-normal text-slate-500">dagen</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-1">
+                    <ArrowDownRight className="h-3 w-3 mr-1" />
+                    -2,0 dagen t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">Collection Efficiency Index</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    94<span className="text-sm font-normal text-slate-500 ml-1">%</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-1">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    +1,0 pp t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
             
             {/* Donut & Table Top 10 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -238,7 +348,13 @@ export default function Dashboard() {
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value: number) => formatEuro(value)} />
+                        <Tooltip
+                          formatter={(value: number, _name, props: any) => {
+                            const percent = props?.percent ? `${(props.percent * 100).toFixed(1)}%` : '';
+                            const name = props?.payload?.name ?? '';
+                            return [`${name}: ${formatEuro(value)} (${percent})`, ''];
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -257,16 +373,20 @@ export default function Dashboard() {
                           <th className="px-4 py-2 font-medium text-slate-500">Naam</th>
                           <th className="px-4 py-2 font-medium text-slate-500 text-right">Saldo</th>
                           <th className="px-4 py-2 font-medium text-slate-500 text-center">Facturen</th>
-                          <th className="px-4 py-2 font-medium text-slate-500 text-center">Gem. Termijn</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {top10Debtors.map((d, i) => (
                           <tr key={i} className="hover:bg-slate-50">
-                            <td className="px-4 py-2 font-medium text-slate-900 truncate max-w-[100px]">{d.name}</td>
+                            <td className="px-4 py-2 font-medium text-slate-900 truncate max-w-[140px]">
+                              <span
+                                className="inline-block w-2 h-2 rounded-full mr-2 align-middle"
+                                style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                              />
+                              <span className="align-middle">{d.name}</span>
+                            </td>
                             <td className="px-4 py-2 text-right">{formatEuro(d.balance)}</td>
                             <td className="px-4 py-2 text-center">{d.invoices}</td>
-                            <td className="px-4 py-2 text-center">{d.avgDays}d</td>
                           </tr>
                         ))}
                       </tbody>
@@ -279,7 +399,7 @@ export default function Dashboard() {
             {/* Waterfall / Aging */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Ouderdomsanalyse (Buckets)</CardTitle>
+                <CardTitle className="text-sm">Ouderdomsanalyse</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[250px] w-full">
@@ -342,11 +462,77 @@ export default function Dashboard() {
                 </table>
               </div>
             </Card>
+
+            {/* Verwachte handelsuitstroom */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Verwachte handelsuitstroom</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[260px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={expectedAPOutflowWeeks} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tickFormatter={(val) => `€${val / 1000}k`}
+                      />
+                      <Tooltip
+                        cursor={{ fill: '#f1f5f9' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value: number, _name, props: any) => [
+                          formatEuro(value),
+                          `Week (${props?.payload?.month})`,
+                        ]}
+                      />
+                      <Bar dataKey="value" fill="#64748b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Column 2: Crediteuren */}
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-2">Crediteuren</h2>
+            
+            {/* Crediteuren KPI's */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">DPO (Days Payables Outstanding)</CardTitle>
+                  <Clock className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    41 <span className="text-sm font-normal text-slate-500">dagen</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-1">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    +1,5 dagen t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">Tijdige Betalingsgraad</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    89<span className="text-sm font-normal text-slate-500 ml-1">%</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-1">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    +0,8 pp t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
             
             {/* Donut & Table Top 10 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -371,7 +557,13 @@ export default function Dashboard() {
                             <Cell key={`cell-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(value: number) => formatEuro(value)} />
+                        <Tooltip
+                          formatter={(value: number, _name, props: any) => {
+                            const percent = props?.percent ? `${(props.percent * 100).toFixed(1)}%` : '';
+                            const name = props?.payload?.name ?? '';
+                            return [`${name}: ${formatEuro(value)} (${percent})`, ''];
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -410,7 +602,7 @@ export default function Dashboard() {
             {/* Waterfall / Aging */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Ouderdomsanalyse (Buckets)</CardTitle>
+                <CardTitle className="text-sm">Ouderdomsanalyse</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[250px] w-full">
@@ -472,6 +664,38 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
+            </Card>
+
+            {/* Verwachte handelsinstroom */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Verwachte handelsinstroom</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[260px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={expectedARInflowWeeks} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={10} />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 11, fill: '#64748b' }}
+                        tickFormatter={(val) => `€${val / 1000}k`}
+                      />
+                      <Tooltip
+                        cursor={{ fill: '#f1f5f9' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value: number, _name, props: any) => [
+                          formatEuro(value),
+                          `Week (${props?.payload?.month})`,
+                        ]}
+                      />
+                      <Bar dataKey="value" fill="#64748b" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
             </Card>
           </div>
 
