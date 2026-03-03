@@ -201,9 +201,9 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* Row 2: Line Chart & 3 KPIs */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2 flex flex-col h-full">
+          {/* Row 2: Line Chart & KPI columns */}
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <Card className="xl:col-span-2 flex flex-col h-full">
               <CardHeader>
                 <CardTitle>Cash conversion cycle</CardTitle>
               </CardHeader>
@@ -240,7 +240,7 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-            <div className="grid grid-cols-1 gap-6">
+            <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-slate-500">Cash conversion cycle (dagen)</CardTitle>
@@ -262,12 +262,27 @@ export default function Dashboard() {
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
                 </CardHeader>
                 <CardContent>
-                <div className="text-3xl font-bold text-slate-900">{formatEuro(150000)}</div>
-                <p className="text-sm text-slate-500 mt-2">17,6% van totaal uitstaand</p>
-                <p className="text-xs text-rose-600 flex items-center mt-1">
-                  <ArrowUpRight className="h-3 w-3 mr-1" />
-                  +1,3% t.o.v. vorige maand
-                </p>
+                  <div className="text-3xl font-bold text-slate-900">{formatEuro(150000)}</div>
+                  <p className="text-sm text-slate-500 mt-2">17,6% van totaal uitstaand</p>
+                  <p className="text-xs text-rose-600 flex items-center mt-1">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    +1,3% t.o.v. vorige maand
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-slate-500">Cash gap (dagen)</CardTitle>
+                  <Clock className="h-4 w-4 text-slate-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-slate-900">
+                    40 <span className="text-lg font-normal text-slate-500">dagen</span>
+                  </div>
+                  <p className="text-xs text-emerald-600 flex items-center mt-2">
+                    <ArrowDownRight className="h-3 w-3 mr-1" />
+                    -3,0 dagen t.o.v. vorige maand
+                  </p>
                 </CardContent>
               </Card>
               <Card>
@@ -276,7 +291,9 @@ export default function Dashboard() {
                   <Clock className="h-4 w-4 text-slate-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">14 <span className="text-lg font-normal text-slate-500">dagen</span></div>
+                  <div className="text-3xl font-bold text-slate-900">
+                    14 <span className="text-lg font-normal text-slate-500">dagen</span>
+                  </div>
                   <p className="text-sm text-slate-500 mt-2">Bovenop reguliere betalingstermijn</p>
                 </CardContent>
               </Card>
