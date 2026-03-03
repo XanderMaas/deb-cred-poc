@@ -294,7 +294,10 @@ export default function Dashboard() {
                   <div className="text-3xl font-bold text-slate-900">
                     14 <span className="text-lg font-normal text-slate-500">dagen</span>
                   </div>
-                  <p className="text-sm text-slate-500 mt-2">Bovenop reguliere betalingstermijn</p>
+                  <p className="text-xs text-rose-600 flex items-center mt-2">
+                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                    +5% t.o.v. vorige maand
+                  </p>
                 </CardContent>
               </Card>
             </div>
